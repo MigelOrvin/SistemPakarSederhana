@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:healthcare/pages/home/widgetsHome/diagnose.dart';
 import 'package:healthcare/pages/home/widgetsHome/greeting.dart';
+import 'package:healthcare/pages/home/widgetsHome/information.dart';
 import 'package:intl/intl.dart';
 
 class homeScreen extends StatelessWidget {
@@ -20,7 +21,7 @@ class homeScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color.fromARGB(244, 255, 255, 255),
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Padding(
@@ -35,28 +36,44 @@ class homeScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.only(left: 24, right: 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            GreetingSection(greeting: greeting),
-            SizedBox(height: 10),
-            Text(
-              "have problem? lets check it out!",
-              style: TextStyle(fontSize: 13, color: Colors.grey),
-            ),
-            SizedBox(height: 30),
-            DiagnoseCard(),
-            SizedBox(height: 50),
-            Text(
-              "Information",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(colors: [
+            Colors.white,
+            Color.fromARGB(174, 181, 181, 181)
           ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,)
+        ),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 24, right: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GreetingSection(greeting: greeting),
+              SizedBox(height: 10),
+              Text(
+                "have problem? lets check it out!",
+                style: TextStyle(fontSize: 13, color: Colors.grey),
+              ),
+              SizedBox(height: 30),
+              DiagnoseCard(),
+              SizedBox(height: 50),
+              Text(
+                "Information",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                "More information about disease",
+                style: TextStyle(fontSize: 13, color: Colors.grey),
+              ),
+              SizedBox(height: 10),
+              InformationDisease()
+            ],
+          ),
         ),
       ),
     );
