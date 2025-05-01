@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:healthcare/pages/diagnose/diagnoseproblem.dart';
 
 class DiagnoseCard extends StatelessWidget {
   const DiagnoseCard({super.key});
@@ -7,7 +8,9 @@ class DiagnoseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
               onTap: () {
-                
+                Navigator.push(context,  MaterialPageRoute(
+                  builder: (context) => DiagnoseProblem(),
+                ));
               },
               child: Container(
                 width: double.infinity,

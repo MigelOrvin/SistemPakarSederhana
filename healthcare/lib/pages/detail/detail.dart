@@ -19,6 +19,16 @@ class DiseaseDetailPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Container(
+              color: Colors.blueAccent.withOpacity(0.1),
+              width: double.infinity,
+              child: Icon(
+                Icons.local_hospital,
+                color: Colors.blue[300],
+                size: 60,
+              ),
+            ),
+
             Text(
               "Nama Penyakit:",
               style: const TextStyle(
@@ -40,9 +50,30 @@ class DiseaseDetailPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Text(
-              disease.symptoms.map((s) => s.name).join(", "),
-              style: const TextStyle(fontSize: 16),
+            Expanded(
+              child: ListView.builder(
+                itemCount: disease.symptoms.length,
+                itemBuilder: (context, symptomIndex) {
+                  final symptom = disease.symptoms[symptomIndex];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.circle,
+                          size: 8,
+                          color: Colors.black54,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          symptom.name,
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),
