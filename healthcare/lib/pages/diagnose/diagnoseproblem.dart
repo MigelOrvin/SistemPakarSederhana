@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:healthcare/fact/factsset.dart';
+import 'package:healthcare/fact/model/disease.dart';
 
 class DiagnoseProblem extends StatefulWidget {
   const DiagnoseProblem({super.key});
@@ -95,40 +96,83 @@ class _DiagnoseProblemState extends State<DiagnoseProblem> {
                         _selectedSymptoms.entries
                             .where((entry) => entry.value)
                             .map((entry) => entry.key)
-                            .toList();
+                            .toSet();
 
-                    //penyakit sebenernyo
                     final exactMatchedDiseases =
                         diseases.where((disease) {
                           final diseaseSymptomIds =
                               disease.symptoms
                                   .map((symptom) => symptom.id)
-                                  .toList();
-                          return diseaseSymptomIds.every(
-                                (symptomId) =>
-                                    selectedSymptoms.contains(symptomId),
-                              ) &&
-                              selectedSymptoms.every(
-                                (symptomId) =>
-                                    diseaseSymptomIds.contains(symptomId),
-                              );
+                                  .toSet();
+                          return diseaseSymptomIds
+                                  .difference(selectedSymptoms)
+                                  .isEmpty &&
+                              selectedSymptoms
+                                  .difference(diseaseSymptomIds)
+                                  .isEmpty;
                         }).toList();
 
-                    //kemungkinan laen
                     final possibleDiseases =
-                        diseases.where((disease) {
-                          final diseaseSymptomIds =
-                              disease.symptoms
-                                  .map((symptom) => symptom.id)
-                                  .toList();
-                          final commonSymptoms = selectedSymptoms
-                              .where((symptomId) =>
-                                  diseaseSymptomIds.contains(symptomId))
-                              .toList();
-                          return commonSymptoms.length >=
-                                  (diseaseSymptomIds.length * 0.75).floor() &&
-                              !exactMatchedDiseases.contains(disease);
-                        }).toList();
+                        diseases
+                            .map((disease) {
+                              final diseaseSymptomIds =
+                                  disease.symptoms
+                                      .map((symptom) => symptom.id)
+                                      .toSet();
+                              final commonSymptoms = diseaseSymptomIds
+                                  .intersection(selectedSymptoms);
+
+                              double probability =
+                                  commonSymptoms.length /
+                                  diseaseSymptomIds.length;
+
+                              if (selectedSymptoms.length >
+                                  diseaseSymptomIds.length) {
+                                final extraSymptoms =
+                                    selectedSymptoms.length -
+                                    diseaseSymptomIds.length;
+                                probability -=
+                                    (extraSymptoms / diseaseSymptomIds.length);
+                                if (probability < 0) probability = 0;
+                              }
+
+                              return {
+                                'disease': disease,
+                                'probability': probability,
+                              };
+                            })
+                            .where(
+                              (entry) => (entry['probability'] as double) > 0,
+                            )
+                            .toList()
+                          ..sort(
+                            (a, b) => (b['probability'] as double).compareTo(
+                              a['probability'] as double,
+                            ),
+                          );
+
+                    final possibleDiseasesFiltered =
+                        selectedSymptoms.length < 3
+                            ? diseases.where((disease) {
+                              final diseaseSymptomIds =
+                                  disease.symptoms
+                                      .map((symptom) => symptom.id)
+                                      .toSet();
+                              final commonSymptoms = diseaseSymptomIds
+                                  .intersection(selectedSymptoms);
+                              return commonSymptoms.isNotEmpty &&
+                                  !exactMatchedDiseases.contains(disease);
+                            }).toList()
+                            : possibleDiseases.isNotEmpty
+                            ? possibleDiseases
+                                .where(
+                                  (entry) =>
+                                      entry['probability'] ==
+                                      possibleDiseases.first['probability'],
+                                )
+                                .map((entry) => entry['disease'] as Disease)
+                                .toList()
+                            : [];
 
                     showDialog(
                       context: context,
@@ -153,18 +197,22 @@ class _DiagnoseProblemState extends State<DiagnoseProblem> {
                                       }).toList(),
                                 ),
                                 const SizedBox(height: 16),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "But there's other posibilities: ${possibleDiseases.length}",
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
+                                if (possibleDiseasesFiltered.length >
+                                    1)
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "But there's other possibilities: ${possibleDiseasesFiltered.length - 1}",
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ] else if (possibleDiseases.isNotEmpty) ...[
+                                    ],
+                                  ),
+                              ] else if (possibleDiseasesFiltered
+                                  .isNotEmpty) ...[
                                 const Text(
                                   "Your problem maybe this:",
                                   style: TextStyle(fontWeight: FontWeight.bold),
@@ -173,7 +221,7 @@ class _DiagnoseProblemState extends State<DiagnoseProblem> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children:
-                                      possibleDiseases.map((disease) {
+                                      possibleDiseasesFiltered.map((disease) {
                                         return Text("${disease.name}");
                                       }).toList(),
                                 ),

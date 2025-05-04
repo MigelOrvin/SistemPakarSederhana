@@ -124,11 +124,11 @@ final List<Disease> diseases = [
   ),
   Disease(
     name: "SINUSITIS MAKSILARIS",
-    symptoms: symptoms.where((s) => [1, 2, 4, 5, 8, 9, 11, 18, 28, 33].contains(s.id)).toList(),
+    symptoms: symptoms.where((s) => [1, 2, 4, 5, 8, 9, 11, 28, 33].contains(s.id)).toList(),
   ),
   Disease(
     name: "SINUSITIS FRONTALIS",
-    symptoms: symptoms.where((s) => [1, 2, 4, 5, 8, 9, 11].contains(s.id)).toList(),
+    symptoms: symptoms.where((s) => [1, 2, 4, 5, 8, 9, 11, 18].contains(s.id)).toList(),
   ),
   Disease(
     name: "SINUSITIS ETMOIDALIS",
@@ -136,7 +136,7 @@ final List<Disease> diseases = [
   ),
   Disease(
     name: "SINUSITIS SFENOIDALIS",
-    symptoms: symptoms.where((s) => [1, 2, 4, 5, 8, 9, 11, 18].contains(s.id)).toList(),
+    symptoms: symptoms.where((s) => [1, 2, 4, 5, 6, 8, 9, 11, 12].contains(s.id)).toList(),
   ),
   Disease(
     name: "PERUT",
