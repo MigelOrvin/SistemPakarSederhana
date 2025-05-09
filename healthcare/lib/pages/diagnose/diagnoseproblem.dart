@@ -179,54 +179,111 @@ class _DiagnoseProblemState extends State<DiagnoseProblem> {
                       builder: (context) {
                         return AlertDialog(
                           title: const Text('Diagnosis Result'),
-                          content: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (exactMatchedDiseases.isNotEmpty) ...[
-                                const Text(
-                                  "This is your diseases:",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 8),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children:
-                                      exactMatchedDiseases.map((disease) {
-                                        return Text("${disease.name}");
-                                      }).toList(),
-                                ),
-                                const SizedBox(height: 16),
-                                if (possibleDiseasesFiltered.length >
-                                    1)
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "But there's other possibilities: ${possibleDiseasesFiltered.length - 1}",
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
+                          content: SingleChildScrollView(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (exactMatchedDiseases.isNotEmpty) ...[
+                                  const Text(
+                                    "This is your diseases:",
+                                    style: TextStyle(fontWeight: FontWeight.bold),
                                   ),
-                              ] else if (possibleDiseasesFiltered
-                                  .isNotEmpty) ...[
-                                const Text(
-                                  "Your problem maybe this:",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 8),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children:
-                                      possibleDiseasesFiltered.map((disease) {
-                                        return Text("${disease.name}");
-                                      }).toList(),
-                                ),
+                                  const SizedBox(height: 8),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: exactMatchedDiseases.map((disease) {
+                                      return Container(
+                                        margin: const EdgeInsets.only(bottom: 5),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                disease.name,
+                                                style: const TextStyle(fontSize: 16),
+                                              ),
+                                            ),
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                              decoration: BoxDecoration(
+                                                color: Colors.green,
+                                                borderRadius: BorderRadius.circular(12),
+                                              ),
+                                              child: const Text(
+                                                "100%",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  if (possibleDiseasesFiltered.length > 1)
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "But there's other possibilities: ${possibleDiseasesFiltered.length - 1}\nIf you have more symptoms, add them to the list.",
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                ] else if (possibleDiseasesFiltered.isNotEmpty) ...[
+                                  const Text(
+                                    "Your problem are this:",
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: possibleDiseasesFiltered.map((disease) {
+                                      final diseaseEntry = possibleDiseases.firstWhere(
+                                        (entry) => entry['disease'] == disease,
+                                        orElse: () => {'disease': disease, 'probability': 0.0},
+                                      );
+                                      final probability = (diseaseEntry['probability'] as double) * 100;
+                                      
+                                      return Container(
+                                        margin: const EdgeInsets.only(bottom: 5),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                disease.name,
+                                                style: const TextStyle(fontSize: 16),
+                                              ),
+                                            ),
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                              decoration: BoxDecoration(
+                                                color: probability > 75 ? Colors.green : 
+                                                      probability > 50 ? Colors.orange : 
+                                                      Colors.red,
+                                                borderRadius: BorderRadius.circular(12),
+                                              ),
+                                              child: Text(
+                                                "${probability.toStringAsFixed(0)}%",
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ],
                               ],
-                            ],
+                            ),
                           ),
                           actions: [
                             TextButton(
@@ -238,7 +295,7 @@ class _DiagnoseProblemState extends State<DiagnoseProblem> {
                                 style: TextStyle(color: Colors.blue),
                               ),
                             ),
-                            if (exactMatchedDiseases.isNotEmpty)
+                            if (exactMatchedDiseases.isNotEmpty || possibleDiseasesFiltered.isNotEmpty)
                               TextButton(
                                 onPressed: () {
                                   setState(() {
@@ -282,3 +339,4 @@ class _DiagnoseProblemState extends State<DiagnoseProblem> {
     );
   }
 }
+
